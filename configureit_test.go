@@ -10,7 +10,8 @@ func makeSimpleConfig() *Config {
 	testConfig := New()
 	testConfig.Add("key_a", NewStringOption("default 1"))
 	testConfig.Add("key_b", NewIntOption(2))
-
+	testConfig.Add("user_test", NewUserOption(""))
+	testConfig.Add("user test 2", NewUserOption(""))
 	return testConfig
 }
 
@@ -47,7 +48,41 @@ func TestConfig(t *testing.T) {
 		if iopt.Value != 2 {
 			t.Errorf("key_b Value doesn't match initial configured value.")
 		}
-	}	
+	}
+
+	tv = testConfig.Get("user_test")
+	if nil == tv {
+		t.Errorf("Couldn't find user_test in testConfig")
+	} else {
+		if !tv.IsDefault() {
+			t.Errorf("user_test reported non-default without changes")
+		}
+		uopt, ok := tv.(*UserOption)
+		if !ok {
+			t.Errorf("Failed return assertion for user_test back to UserOption")
+		}
+		_, err := uopt.UID()
+		if err != EmptyUserSet {
+			t.Errorf("user_test didn't claim it set empty.")
+		}
+	}
+
+	tv = testConfig.Get("user test 2")
+	if nil == tv {
+		t.Errorf("Couldn't find \"user test 2\" in testConfig")
+	} else {
+		if !tv.IsDefault() {
+			t.Errorf("user test 2 reported non-default without changes")
+		}
+		uopt, ok := tv.(*UserOption)
+		if !ok {
+			t.Errorf("Failed return assertion for user test 2 back to UserOption")
+		}
+		_, err := uopt.UID()
+		if err != EmptyUserSet {
+			t.Errorf("user test 2 didn't claim it set empty.")
+		}
+	}
 
 	tv = testConfig.Get("key_c")
 	if nil != tv {
@@ -97,7 +132,46 @@ func TestFileRead(t *testing.T) {
 		if iopt.Value != 27 {
 			t.Errorf("key_b Value doesn't match expected value.")
 		}
-	}	
+	}
 
+	tv = testConfig.Get("user_test")
+	if nil == tv {
+		t.Errorf("Couldn't find user_test in testConfig")
+	} else {
+		if tv.IsDefault() {
+			t.Errorf("user_test reported default despite changes")
+		}
+		uopt, ok := tv.(*UserOption)
+		if !ok {
+			t.Errorf("Failed return assertion for user_test back to UserOption")
+		}
+		uid, err := uopt.UID()
+		if err != nil {
+			t.Errorf("Error whilst looking up UID: %s", err)
+		}
+		if uid != 0 {
+			t.Errorf("user_test Value doesn't match expected value.")
+		}
+	}
+
+	tv = testConfig.Get("user test 2")
+	if nil == tv {
+		t.Errorf("Couldn't find \"user test 2\" in testConfig")
+	} else {
+		if tv.IsDefault() {
+			t.Errorf("user test 2 reported default despite changes")
+		}
+		uopt, ok := tv.(*UserOption)
+		if !ok {
+			t.Errorf("Failed return assertion for user test 2 back to UserOption")
+		}
+		uid, err := uopt.UID()
+		if err != nil {
+			t.Errorf("Error whilst looking up UID: %s", err)
+		}
+		if uid != 50 {
+			t.Errorf("user test 2 Value doesn't match expected value.")
+		}
+	}
 }
 	
