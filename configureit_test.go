@@ -8,8 +8,8 @@ import (
 
 func makeSimpleConfig() *Config {
 	testConfig := New()
-	testConfig.Add(NewStringOption("key_a", "default 1"))
-	testConfig.Add(NewIntOption("key_b", 2))
+	testConfig.Add("key_a", NewStringOption("default 1"))
+	testConfig.Add("key_b", NewIntOption(2))
 
 	return testConfig
 }
@@ -48,6 +48,11 @@ func TestConfig(t *testing.T) {
 			t.Errorf("key_b Value doesn't match initial configured value.")
 		}
 	}	
+
+	tv = testConfig.Get("key_c")
+	if nil != tv {
+		t.Errorf("Found non-existant key_c in testConfig")
+	}
 }
 
 func TestFileRead(t *testing.T) {

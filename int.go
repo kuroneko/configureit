@@ -12,24 +12,18 @@ import (
 )
 
 type IntOption struct {	
-	keyname		string
 	defaultvalue	int
 	isset		bool
 	Value		int
 }
 
-func NewIntOption(keyName string, defaultValue int) ConfigNode {
+func NewIntOption(defaultValue int) ConfigNode {
 	opt := new(IntOption)
 
-	opt.keyname = strings.ToLower(keyName)
 	opt.defaultvalue = defaultValue
 	opt.Reset()
 
 	return opt
-}
-
-func (opt *IntOption) Name() string {
-	return opt.keyname
 }
 
 func (opt *IntOption) String() string {

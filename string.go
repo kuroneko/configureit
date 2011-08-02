@@ -5,29 +5,22 @@
 package configureit
 
 import (
-	"strings"
 	"os"
 )
 
 type StringOption struct {	
-	keyname		string
 	defaultvalue	string
 	isset		bool
 	Value		string
 }
 
-func NewStringOption(keyName string, defaultValue string) ConfigNode {
+func NewStringOption(defaultValue string) ConfigNode {
 	opt := new(StringOption)
 
-	opt.keyname = strings.ToLower(keyName)
 	opt.defaultvalue = defaultValue
 	opt.Reset()
 
 	return opt
-}
-
-func (opt *StringOption) Name() string {
-	return opt.keyname
 }
 
 func (opt *StringOption) String() string {

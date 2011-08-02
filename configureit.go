@@ -63,9 +63,6 @@ func NewUnknownOptionError(lineNumber int, key string) os.Error {
 // ConfigNodes are typed, and are handled by their own node
 // implementations.
 type ConfigNode interface {
-	// attribute name.  Must be all lower case.
-	Name()		string
-
 	// returns the value formatted as a string.  Must be parsable with
 	// Parse() to produce the same value.
 	String()	string
@@ -83,19 +80,21 @@ type ConfigNode interface {
 
 // This represents a configuration.
 type Config struct {
-	structure	[]ConfigNode
+	structure	map[string]ConfigNode
 }
 
 // Create a new configuration object.
 func New() (config *Config) {
 	config = new(Config)
+	config.structure = make(map[string]ConfigNode)
 
 	return config
 }
 
 // Add the specified ConfigNode to the configuration
-func (config *Config) Add(newNode ConfigNode) {
-	config.structure = append(config.structure, newNode)
+func (config *Config) Add(keyname string, newNode ConfigNode) {
+	keyname = strings.ToLower(keyname)
+	config.structure[keyname] = newNode
 }
 
 // Reset the entire configuration.
@@ -108,10 +107,9 @@ func (config *Config) Reset() {
 // Get the named node
 func (config *Config) Get(keyName string) ConfigNode {
 	keyName = strings.ToLower(keyName)
-	for _, citem := range config.structure {
-		if citem.Name() == keyName {
-			return citem
-		}
+	citem, found := config.structure[keyName]
+	if found {
+		return citem
 	}
 	return nil
 }
@@ -122,10 +120,10 @@ func (config *Config) Get(keyName string) ConfigNode {
 //
 // When in doubt, you probably want emitDefaults == false.
 func (config *Config) Write(out io.Writer, emitDefaults bool) {
-	for _,v := range config.structure {
+	for k,v := range config.structure {
 		if !v.IsDefault() || emitDefaults {
 			// non-default value, must write!
-			line := fmt.Sprintf("%s=%s\n", v.Name(), v)
+			line := fmt.Sprintf("%s=%s\n", k, v)
 			io.WriteString(out, line)
 		}
 	}
