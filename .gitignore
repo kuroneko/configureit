@@ -1,0 +1,7 @@
+*~
+\#*
+*.[68]
+[68].out
+_testmain.go
+_test/**
+_obj/**
