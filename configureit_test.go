@@ -61,7 +61,7 @@ func TestConfig(t *testing.T) {
 		if !ok {
 			t.Errorf("Failed return assertion for user_test back to UserOption")
 		}
-		_, err := uopt.UID()
+		_, err := uopt.User()
 		if err != EmptyUserSet {
 			t.Errorf("user_test didn't claim it set empty.")
 		}
@@ -78,7 +78,7 @@ func TestConfig(t *testing.T) {
 		if !ok {
 			t.Errorf("Failed return assertion for user test 2 back to UserOption")
 		}
-		_, err := uopt.UID()
+		_, err := uopt.User()
 		if err != EmptyUserSet {
 			t.Errorf("user test 2 didn't claim it set empty.")
 		}
@@ -145,11 +145,11 @@ func TestFileRead(t *testing.T) {
 		if !ok {
 			t.Errorf("Failed return assertion for user_test back to UserOption")
 		}
-		uid, err := uopt.UID()
+		uinfo, err := uopt.User()
 		if err != nil {
 			t.Errorf("Error whilst looking up UID: %s", err)
 		}
-		if uid != 0 {
+		if uinfo.Uid != 0 {
 			t.Errorf("user_test Value doesn't match expected value.")
 		}
 	}
@@ -165,12 +165,15 @@ func TestFileRead(t *testing.T) {
 		if !ok {
 			t.Errorf("Failed return assertion for user test 2 back to UserOption")
 		}
-		uid, err := uopt.UID()
+		uinfo, err := uopt.User()
 		if err != nil {
 			t.Errorf("Error whilst looking up UID: %s", err)
 		}
-		if uid != 50 {
+		if uinfo.Uid != 1 {
 			t.Errorf("user test 2 Value doesn't match expected value.")
+		}
+		if uinfo.Username != "daemon" {
+			t.Errorf("user test 2 name lookup didn't match expected value (ignore if not debian/ubuntu/linux?).")
 		}
 	}
 }

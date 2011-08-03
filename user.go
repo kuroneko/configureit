@@ -69,11 +69,11 @@ func (opt *UserOption) Reset() {
 	opt.isset = false
 }
 
-func (opt *UserOption) UID() (uid int, err os.Error) {
+func (opt *UserOption) User() (userinfo *user.User, err os.Error) {
 	nvs := strings.TrimSpace(opt.Value)
 	if nvs == "" {
 		// special case: empty string is the current euid.
-		return 0, EmptyUserSet
+		return nil, EmptyUserSet
 	}
 	// attempt to map this as a number first, in case a numeric UID 
 	// was provided.
@@ -82,15 +82,15 @@ func (opt *UserOption) UID() (uid int, err os.Error) {
 		switch err.(type) {
 		case *strconv.NumError:
 			// not a number.  do a user table lookup.
-			var userinfo *user.User
 			userinfo, err = user.Lookup(nvs)
 			if err != nil {
-				return 0, err
+				return nil, err
 			}
-			return userinfo.Uid, nil
+			return userinfo, nil
 		default:
-			return 0, err
+			return nil, err
 		}
 	}
-	return val, nil
+	userinfo, err = user.LookupId(val)
+	return userinfo, err
 }
