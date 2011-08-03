@@ -7,6 +7,7 @@ GOFILES=\
 	string.go\
 	int.go\
 	user.go\
+	pathlist.go\
 
 
 include $(GOROOT)/src/Make.pkg
