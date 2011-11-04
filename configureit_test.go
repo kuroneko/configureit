@@ -4,12 +4,14 @@ package configureit
 import (
 	"testing"
 	"os"
+	"math"
 )
 
 func makeSimpleConfig() *Config {
 	testConfig := New()
 	testConfig.Add("key_a", NewStringOption("default 1"))
 	testConfig.Add("key_b", NewIntOption(2))
+	testConfig.Add("float_a", NewFloatOption(1.5))
 	testConfig.Add("user_test", NewUserOption(""))
 	testConfig.Add("user test 2", NewUserOption(""))
 	return testConfig
@@ -47,6 +49,22 @@ func TestConfig(t *testing.T) {
 		}
 		if iopt.Value != 2 {
 			t.Errorf("key_b Value doesn't match initial configured value.")
+		}
+	}
+
+	tv = testConfig.Get("float_a")
+	if nil == tv {
+		t.Errorf("Couldn't find float_a in testConfig")
+	} else {
+		if !tv.IsDefault() {
+			t.Errorf("float_a reported non-default without changes")
+		}
+		iopt, ok := tv.(*FloatOption)
+		if !ok {
+			t.Errorf("Failed return assertion for float_a back to IntOption")
+		}
+		if iopt.Value != 1.5 {
+			t.Errorf("float_a Value doesn't match initial configured value.")
 		}
 	}
 
@@ -131,6 +149,24 @@ func TestFileRead(t *testing.T) {
 		}
 		if iopt.Value != 27 {
 			t.Errorf("key_b Value doesn't match expected value.")
+		}
+	}
+
+	tv = testConfig.Get("float_a")
+	if nil == tv {
+		t.Errorf("Couldn't find float_a in testConfig")
+	} else {
+		if tv.IsDefault() {
+			t.Errorf("float_a reported default despite config file")
+		}
+		iopt, ok := tv.(*FloatOption)
+		if !ok {
+			t.Errorf("Failed return assertion for float_a back to FloatOption")
+		}
+		// the constant should be within one decimal unit of precision of the 
+		// value in sample.conf
+		if math.Fabs(25.2333 - iopt.Value) > 0.0001 {
+			t.Errorf("key_b Value falls outside of expected range.")
 		}
 	}
 

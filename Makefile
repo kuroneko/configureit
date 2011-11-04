@@ -6,6 +6,7 @@ GOFILES=\
 	configureit.go\
 	string.go\
 	int.go\
+	float.go\
 	user.go\
 	pathlist.go\
 
