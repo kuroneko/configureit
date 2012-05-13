@@ -1,28 +1,25 @@
 # ConfigureIt
 
-{{{
-import (
-	"github.com/kuroneko/configureit"
-	"os"
-	"fmt"
-)
-
-var config *configureit.Config
-
-func DoConfiguration(configfile string) {
-	config = configureit.New()
-	config.Add("key_identifier", configureit.NewStringOption("Default value"))
-	fh, _ := os.Open(configfile)
-	config.Read(fh, 1)
-}
-
-func UseConfig() {
-	cn := config.Get("key_identifier")
-	// do stuff with the confignode...
-	fmt.Printf("key_identifier = %s\n", cn)
-}
-
-}}}
+	import (
+		"github.com/kuroneko/configureit"
+		"os"
+		"fmt"
+	)
+	
+	var config *configureit.Config
+	
+	func DoConfiguration(configfile string) {
+		config = configureit.New()
+		config.Add("key_identifier", configureit.NewStringOption("Default value"))
+		fh, _ := os.Open(configfile)
+		config.Read(fh, 1)
+	}
+	
+	func UseConfig() {
+		cn := config.Get("key_identifier")
+		// do stuff with the confignode...
+		fmt.Printf("key_identifier = %s\n", cn)
+	}
 
 ConfigureIt implements a simple line-oriented configuration file
 parser.
