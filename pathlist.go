@@ -23,10 +23,10 @@ func init() {
 //
 // White spaces are valid within terms, but leading and trailing whitespace 
 // are discarded from the whole input, not from terms!
-type PathListOption struct {	
-	defaultvalue	[]string
-	isset		bool
-	Values		[]string
+type PathListOption struct {
+	defaultvalue []string
+	isset        bool
+	Values       []string
 }
 
 func NewPathListOption(defaultValue []string) ConfigNode {
@@ -42,7 +42,7 @@ func (opt *PathListOption) String() string {
 	return strings.Join(opt.Values, string(PathListSeparator))
 }
 
-func (opt *PathListOption) Parse(newValue string) os.Error {
+func (opt *PathListOption) Parse(newValue string) error {
 	newValue = strings.TrimSpace(newValue)
 
 	opt.Values = strings.Split(newValue, string(PathListSeparator))

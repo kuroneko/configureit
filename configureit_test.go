@@ -1,10 +1,9 @@
-
 package configureit
 
 import (
-	"testing"
-	"os"
 	"math"
+	"os"
+	"testing"
 )
 
 func makeSimpleConfig() *Config {
@@ -165,7 +164,7 @@ func TestFileRead(t *testing.T) {
 		}
 		// the constant should be within one decimal unit of precision of the 
 		// value in sample.conf
-		if math.Fabs(25.2333 - iopt.Value) > 0.0001 {
+		if math.Abs(25.2333-iopt.Value) > 0.0001 {
 			t.Errorf("key_b Value falls outside of expected range.")
 		}
 	}
@@ -185,7 +184,7 @@ func TestFileRead(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error whilst looking up UID: %s", err)
 		}
-		if uinfo.Uid != 0 {
+		if uinfo.Uid != "0" {
 			t.Errorf("user_test Value doesn't match expected value.")
 		}
 	}
@@ -205,7 +204,7 @@ func TestFileRead(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error whilst looking up UID: %s", err)
 		}
-		if uinfo.Uid != 1 {
+		if uinfo.Uid != "1" {
 			t.Errorf("user test 2 Value doesn't match expected value.")
 		}
 		if uinfo.Username != "daemon" {
@@ -213,4 +212,3 @@ func TestFileRead(t *testing.T) {
 		}
 	}
 }
-	

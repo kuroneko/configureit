@@ -5,16 +5,15 @@
 package configureit
 
 import (
-	"strings"
-	"strconv"
-	"os"
 	"fmt"
+	"strconv"
+	"strings"
 )
 
-type IntOption struct {	
-	defaultvalue	int
-	isset		bool
-	Value		int
+type IntOption struct {
+	defaultvalue int
+	isset        bool
+	Value        int
 }
 
 func NewIntOption(defaultValue int) ConfigNode {
@@ -30,7 +29,7 @@ func (opt *IntOption) String() string {
 	return fmt.Sprintf("%d", opt.Value)
 }
 
-func (opt *IntOption) Parse(newValue string) os.Error {
+func (opt *IntOption) Parse(newValue string) error {
 	nativenv, err := strconv.Atoi(strings.TrimSpace(newValue))
 	if err != nil {
 		return err

@@ -4,14 +4,10 @@
 
 package configureit
 
-import (
-	"os"
-)
-
-type StringOption struct {	
-	defaultvalue	string
-	isset		bool
-	Value		string
+type StringOption struct {
+	defaultvalue string
+	isset        bool
+	Value        string
 }
 
 func NewStringOption(defaultValue string) ConfigNode {
@@ -27,7 +23,7 @@ func (opt *StringOption) String() string {
 	return opt.Value
 }
 
-func (opt *StringOption) Parse(newValue string) os.Error {
+func (opt *StringOption) Parse(newValue string) error {
 	opt.Value = newValue
 	opt.isset = true
 

@@ -5,23 +5,23 @@
 package configureit
 
 import (
-	"os"
+	"errors"
 	"os/user"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 // User options represent user specifications in a config file.
 //
 // They can be either a literal username, or a number.
-type UserOption struct {	
-	defaultvalue	string
-	isset		bool
+type UserOption struct {
+	defaultvalue string
+	isset        bool
 	// literal value
-	Value		string
+	Value string
 }
 
-var EmptyUserSet = os.NewError("No value set")
+var EmptyUserSet = errors.New("No value set")
 
 func NewUserOption(defaultValue string) ConfigNode {
 	opt := new(UserOption)
@@ -36,7 +36,7 @@ func (opt *UserOption) String() string {
 	return opt.Value
 }
 
-func (opt *UserOption) Parse(newValue string) os.Error {
+func (opt *UserOption) Parse(newValue string) error {
 	nvs := strings.TrimSpace(newValue)
 	if nvs != "" {
 		// validate the input.
@@ -52,7 +52,7 @@ func (opt *UserOption) Parse(newValue string) os.Error {
 			default:
 				return err
 			}
-		}			
+		}
 	}
 	opt.Value = newValue
 	opt.isset = true
@@ -69,7 +69,7 @@ func (opt *UserOption) Reset() {
 	opt.isset = false
 }
 
-func (opt *UserOption) User() (userinfo *user.User, err os.Error) {
+func (opt *UserOption) User() (userinfo *user.User, err error) {
 	nvs := strings.TrimSpace(opt.Value)
 	if nvs == "" {
 		// special case: empty string is the current euid.
@@ -77,7 +77,7 @@ func (opt *UserOption) User() (userinfo *user.User, err os.Error) {
 	}
 	// attempt to map this as a number first, in case a numeric UID 
 	// was provided.
-	val, err := strconv.Atoi(nvs)
+	_, err = strconv.Atoi(nvs)
 	if err != nil {
 		switch err.(type) {
 		case *strconv.NumError:
@@ -91,6 +91,6 @@ func (opt *UserOption) User() (userinfo *user.User, err os.Error) {
 			return nil, err
 		}
 	}
-	userinfo, err = user.LookupId(val)
+	userinfo, err = user.LookupId(nvs)
 	return userinfo, err
 }

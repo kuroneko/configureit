@@ -7,31 +7,31 @@
 package configureit
 
 import (
-	"strings"
-	"io"
-	"os"
 	"bufio"
-	"unicode"
+	"errors"
 	"fmt"
+	"io"
+	"strings"
+	"unicode"
 )
 
 // ParseErrors are returned by ConfigNodes when they encounter a
 // problem with their input, or by the config reader when it
 // has problems.
 type ParseError struct {
-	LineNumber	int
-	InnerError	os.Error
+	LineNumber int
+	InnerError error
 }
 
-var MissingEqualsOperator = os.NewError("No equals (=) sign on non-blank line")
+var MissingEqualsOperator = errors.New("No equals (=) sign on non-blank line")
 
-func (err *ParseError) String() string {
+func (err *ParseError) Error() string {
 	return fmt.Sprintf("%s (at line %d)", err.InnerError, err.LineNumber)
 }
 
-func NewParseError(lineNumber int, inner os.Error) os.Error {
+func NewParseError(lineNumber int, inner error) error {
 	err := new(ParseError)
-	
+
 	err.LineNumber = lineNumber
 	err.InnerError = inner
 
@@ -41,17 +41,17 @@ func NewParseError(lineNumber int, inner os.Error) os.Error {
 // Unknown option errors are thrown when the key name (left-hand side
 // of a config item) is unknown.
 type UnknownOptionError struct {
-	LineNumber	int
-	Key		string
+	LineNumber int
+	Key        string
 }
 
-func (err *UnknownOptionError) String() string {
+func (err *UnknownOptionError) Error() string {
 	return fmt.Sprintf("Unknown Key \"%s\" at line %d", err.Key, err.LineNumber)
 }
 
-func NewUnknownOptionError(lineNumber int, key string) os.Error {
+func NewUnknownOptionError(lineNumber int, key string) error {
 	err := new(UnknownOptionError)
-	
+
 	err.LineNumber = lineNumber
 	err.Key = key
 
@@ -65,14 +65,14 @@ func NewUnknownOptionError(lineNumber int, key string) os.Error {
 type ConfigNode interface {
 	// returns the value formatted as a string.  Must be parsable with
 	// Parse() to produce the same value.
-	String()	string
+	String() string
 
 	// parses the string and set the value.  Clears default.  
 	// Returns errors if the results can't be read.
-	Parse(newValue string)	os.Error
+	Parse(newValue string) error
 
 	// is the current value the default?
-	IsDefault()	bool
+	IsDefault() bool
 
 	// reset to the default value.
 	Reset()
@@ -80,7 +80,7 @@ type ConfigNode interface {
 
 // This represents a configuration.
 type Config struct {
-	structure	map[string]ConfigNode
+	structure map[string]ConfigNode
 }
 
 // Create a new configuration object.
@@ -120,7 +120,7 @@ func (config *Config) Get(keyName string) ConfigNode {
 //
 // When in doubt, you probably want emitDefaults == false.
 func (config *Config) Write(out io.Writer, emitDefaults bool) {
-	for k,v := range config.structure {
+	for k, v := range config.structure {
 		if !v.IsDefault() || emitDefaults {
 			// non-default value, must write!
 			line := fmt.Sprintf("%s=%s\n", k, v)
@@ -143,22 +143,22 @@ func (config *Config) Write(out io.Writer, emitDefaults bool) {
 //
 // firstLineNumber specifies the actual first line number in the file (for
 // partial file reads, or resume from error)
-func (config *Config) Read(in io.Reader, firstLineNumber int) os.Error {
+func (config *Config) Read(in io.Reader, firstLineNumber int) error {
 	bufin := bufio.NewReader(in)
 
 	// position the line number before the 'first' line.
-	var lineNumber int = (firstLineNumber-1)
-	
+	var lineNumber int = (firstLineNumber - 1)
+
 	for {
 		var bline []byte = nil
 		var isPrefix bool
-		var err os.Error
+		var err error
 
 		// get a whole line of input, and handle buffer exhausation
 		// correctly.
 		bline, isPrefix, err = bufin.ReadLine()
 		if err != nil {
-			if err == os.EOF {
+			if err == io.EOF {
 				break
 			} else {
 				return err
@@ -166,7 +166,7 @@ func (config *Config) Read(in io.Reader, firstLineNumber int) os.Error {
 		}
 		for isPrefix {
 			var contline []byte
-			
+
 			contline, isPrefix, err = bufin.ReadLine()
 			if err != nil {
 				return err
@@ -178,7 +178,7 @@ func (config *Config) Read(in io.Reader, firstLineNumber int) os.Error {
 
 		// back convert the bytearray to a native string.
 		line := string(bline)
-		
+
 		// now, start doing unspreakable things to it! (bwahaha)
 
 		// remove left space
@@ -203,10 +203,10 @@ func (config *Config) Read(in io.Reader, firstLineNumber int) os.Error {
 
 		// take the two slices.
 		keyname := line[0:epos]
-		rawvalue := line[epos+1:len(line)]
+		rawvalue := line[epos+1 : len(line)]
 
 		// clean up the keyname
-		keyname = strings.TrimRightFunc(keyname,unicode.IsSpace)
+		keyname = strings.TrimRightFunc(keyname, unicode.IsSpace)
 		keyname = strings.ToLower(keyname)
 
 		// find the correct key in the config.
@@ -215,7 +215,7 @@ func (config *Config) Read(in io.Reader, firstLineNumber int) os.Error {
 			return NewUnknownOptionError(lineNumber, keyname)
 		} else {
 			err := cnode.Parse(rawvalue)
-			if (err != nil) {
+			if err != nil {
 				return NewParseError(lineNumber, err)
 			}
 		}

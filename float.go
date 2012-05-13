@@ -5,15 +5,14 @@
 package configureit
 
 import (
-	"strings"
 	"strconv"
-	"os"
+	"strings"
 )
 
-type FloatOption struct {	
-	defaultvalue	float64
-	isset		bool
-	Value		float64
+type FloatOption struct {
+	defaultvalue float64
+	isset        bool
+	Value        float64
 }
 
 func NewFloatOption(defaultValue float64) ConfigNode {
@@ -26,11 +25,11 @@ func NewFloatOption(defaultValue float64) ConfigNode {
 }
 
 func (opt *FloatOption) String() string {
-	return strconv.Ftoa64(opt.Value, 'g', -1)
+	return strconv.FormatFloat(opt.Value, 'g', -1, 64)
 }
 
-func (opt *FloatOption) Parse(newValue string) os.Error {
-	nativenv, err := strconv.Atof64(strings.TrimSpace(newValue))
+func (opt *FloatOption) Parse(newValue string) error {
+	nativenv, err := strconv.ParseFloat(strings.TrimSpace(newValue), 64)
 	if err != nil {
 		return err
 	}
